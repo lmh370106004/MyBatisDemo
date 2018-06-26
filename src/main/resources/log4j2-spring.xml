@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE >ALL -->
+<configuration status="ERROR">
+  <properties>
+    <!-- 文件输出格式 -->
+    <property name="PATTERN">[%date{yyyy-MM-dd HH:mm:ss.SSS}][%thread][%level][%class][%line]:%message%n </property>
+    <Property name="log.dir">./log</Property>
+    <Property name="instance">MyBatisDemo</Property>
+  </properties>
+
+  <appenders>
+    <Console name="Console" target="system_out">
+      <PatternLayout pattern="${PATTERN}" />
+    </Console>
+
+    <!-- info及以上级别的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+    <RollingRandomAccessFile name ="infoLog" fileName="${log.dir}/${instance}-info.log"
+                             filePattern="${log.dir}/%d{yyyy-MM}/${instance}-info-%d{yyyy-MM-dd}-%i.log.gz" append="true">
+      <PatternLayout pattern="${PATTERN}" />
+
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+      <Filters>
+        <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="deny"/>
+      </Filters>
+
+      <Policies>
+        <!-- 基于时间的滚动策略，interval属性用来指定多久滚动一次，默认是1 hour 此处为一天-->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+        <!-- 基于指定文件大小的滚动策略，size属性用来定义每个日志文件的大小 -->
+        <!--<SizeBasedTriggeringPolicy size="50MB" />-->
+        <!-- DefaultRolloverStrategy:用来指定同一个文件夹下最多有几个日志文件时开始删除最旧的，创建新的(通过max属性) -->
+      </Policies>
+      <DefaultRolloverStrategy max="15"/>
+    </RollingRandomAccessFile>
+
+    <!-- ERROR及以上级别的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+    <RollingRandomAccessFile name ="errorLog" fileName="${log.dir}/${instance}-error.log"
+                             filePattern="${log.dir}/%d{yyyy-MM}/${instance}-error-%d{yyyy-MM-dd}-%i.log.gz" append="true">
+      <PatternLayout pattern="${PATTERN}" />
+      <Filters>
+        <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="deny"/>
+      </Filters>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+      </Policies>
+      <DefaultRolloverStrategy max="15"/>
+    </RollingRandomAccessFile>
+
+    <RollingRandomAccessFile name ="debugLog" fileName="${log.dir}/${instance}-debug.log"
+                             filePattern="${log.dir}/%d{yyyy-MM}/${instance}-debug-%d{yyyy-MM-dd}-%i.log.gz" append="true">
+      <PatternLayout pattern="${PATTERN}" />
+      <Filters>
+        <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="deny"/>
+      </Filters>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="30M" modulate="true" />
+      </Policies>
+      <DefaultRolloverStrategy max="1000"/>
+    </RollingRandomAccessFile>
+  </appenders>
+
+  <!-- 全局配置，默认所有的Logger都继承此配置 -->
+
+  <!-- 用来配置LoggerConfig，包含一个root logger和若干个普通logger。
+
+  additivity指定是否同时输出log到父类的appender，缺省为true。
+
+  一个Logger可以绑定多个不同的Appender。只有定义了logger并引入的appender，appender才会生效。 -->
+  <loggers> <!-- 第三方的软件日志级别 -->
+    <logger name="com.lmh.demo.mapper" level="debug" additivity="false">
+      <AppenderRef ref="debugLog"/>
+      <appender-ref ref="Console" />
+    </logger>
+
+    <!-- root logger 配置 -->
+    <Root level="info" includeLocation="true">
+      <AppenderRef ref="infoLog"/>
+      <AppenderRef ref="errorLog"/>
+      <AppenderRef ref="Console"/>
+    </Root>
+  </loggers>
+</configuration>

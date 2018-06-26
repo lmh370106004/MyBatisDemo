@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.lmh.demo.mapper.testOne.UserMapper">
+  <select id="queryById" parameterType="long" resultType="com.lmh.demo.model.User">
+    select * from user where id = #{id};
+  </select>
+
+  <insert id="create" parameterType="com.lmh.demo.model.User" useGeneratedKeys="true" keyProperty="id">
+    insert into user
+    (
+      userName,
+      cellPhone,
+      createTime
+    )
+    values
+    (
+      #{userName},
+      #{cellPhone},
+      #{createTime}
+    );
+    <selectKey resultType="long" keyProperty="id">
+      SELECT @@IDENTITY AS id;
+    </selectKey>
+  </insert>
+
+  <update id="update" parameterType="com.lmh.demo.model.User">
+    update user
+    set
+    userName = #{userName},
+    cellPhone = #{cellPhone}
+    where id = #{id};
+  </update>
+
+  <delete id="deleteById" parameterType="long">
+    delete from user where id = #{id};
+  </delete>
+
+
+</mapper>
